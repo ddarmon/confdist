@@ -1,0 +1,209 @@
+---
+title: "Confidence Curve Weight Change"
+author: "Odalys Barrientos"
+output: html_notebook
+---
+# Confidence Curve Weight Change 
+
+## Basic Stats For Low Carb
+```{r}
+n_lowcarb <- length(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"])
+
+mean_lowcarb <- mean(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"])
+
+sd_lowcarb <- sd(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"])
+
+lowcarb.bottom <- sd_lowcarb/sqrt(n_lowcarb)
+
+mean_lowcarb
+```
+
+## Low Carb Confidence Distribution
+```{r}
+curve(1-pt(((mean_lowcarb-mu)/lowcarb.bottom),df=n_lowcarb-1),from = -20, to=0,xname = "mu")
+```
+```{r}
+lowcarb.t.test <- t.test(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"], alternative = "greater", mu= -12.5)
+
+lowcarb.t.test$p.value
+```
+
+```{r}
+curve(1-pt(((mean_lowcarb-mu)/lowcarb.bottom),df=n_lowcarb-1),from = -20, to=0,xname = "mu") 
+abline(h=lowcarb.t.test$p.value)
+abline(v=-12.5)
+```
+shows the pvalues for a right sides test
+
+
+## Checking Low Carb Confidence Distribution
+```{r}
+curve(1-pt(((mean_lowcarb-mu)/lowcarb.bottom),df=n_lowcarb-1),from = -20, to=0,xname = "mu")
+for (mu in seq(from=-20, to=0, by=1)){ 
+  lowcarb.t.test <-t.test(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"], alternative = "greater", mu= mu)
+abline(h=lowcarb.t.test$p.value, v=mu)
+  }
+```
+
+
+
+## Low Carb Confidence Curve
+```{r}
+conf.curve.lowcarb <- function(mu)abs(2*(1-pt(((mean_lowcarb-mu)/lowcarb.bottom),df=n_lowcarb-1))-1)
+curve(conf.curve.lowcarb(mu),from=-20, to =0 ,xname = "mu")
+```
+
+## Checking Low Carb Confidence Curve
+```{r}
+curve(conf.curve.lowcarb(mu),from=-20, to =0 ,xname = "mu")
+for (conf.int in seq(from=0 , to=1, by=.1)) {
+  lowcarb.test.conf <-t.test(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"], conf.level = conf.int)
+  abline(v=lowcarb.test.conf$conf.int, h=conf.int)
+}
+
+abline(v=lowcarb.test.conf$conf.int, h=.8)
+```
+
+## Confidence Density Low Carb
+```{r}
+lowcarb.conf.dens <- function(mu)1/(sd_lowcarb/sqrt(n_lowcarb))*dt((mean_lowcarb-mu)/(lowcarb.bottom), df=n_lowcarb-1)
+
+curve(lowcarb.conf.dens(mu), from=-20, to=0, xname = "mu")
+
+```
+
+## Checking Confidence Density Low Carb
+```{r}
+curve(1-pt(((mean_lowcarb-mu)/lowcarb.bottom),df=n_lowcarb-1),from = -20, to=0,xname = "mu")
+for (upper in seq(from=-20, to=0, by=.5)) {
+  area <- integrate(function(mu)lowcarb.conf.dens(mu), lower=-Inf, upper=upper)$value
+  abline(v=upper, col="red")
+  abline(h=area, col="blue")
+
+}
+
+```
+
+
+
+## Basic Stats For Low Fat
+```{r}
+n_lowfat <- length(weight_change_data$weightchange[weight_change_data$diet=="Low Fat"])
+
+mean_lowfat<- mean(weight_change_data$weightchange[weight_change_data$diet=="Low Fat"])
+
+sd_lowfat <- sd(weight_change_data$weightchange[weight_change_data$diet=="Low Fat"])
+
+lowfat.bottom <- sd_lowfat/sqrt(305)
+```
+
+## Low Fat Confidence Distribution
+```{r}
+curve(1-pt(((mean_lowfat-mu)/lowfat),df=304),from = -20, to=0,xname = "mu")
+```
+```{r}
+lowfat.t.test <- t.test(weight_change_data$weightchange[weight_change_data$diet=="Low Fat"], alternative = "greater", mu= -12.5)
+
+lowfat.t.test$p.value
+```
+
+```{r}
+curve(1-pt(((mean_lowfat-mu)/lowfat.bottom),df=n_lowfat-1),from = -20, to=0,xname = "mu") 
+abline(h=lowfat.t.test$p.value)
+abline(v=-12.5)
+```
+
+## Checking Low Fat Confidence Distribution
+```{r}
+curve(1-pt(((mean_lowfat-mu)/lowfat.bottom),df=n_lowfat-1),from = -20, to=0,xname = "mu")
+for (mu in seq(from=-20, to=0, by=1)){ 
+  lowfat.t.test <-t.test(weight_change_data$weightchange[weight_change_data$diet=="Low Fat"], alternative = "greater", mu= mu)
+abline(h=lowfat.t.test$p.value, v=mu)
+  }
+```
+## Low Carb Confidence Curve
+```{r}
+conf.curve.lowfat <- function(mu)abs(2*(1-pt(((mean_lowfat-mu)/lowfat.bottom),df=n_lowfat-1))-1)
+
+curve(conf.curve.lowfat(mu),from=-20, to =0 ,xname = "mu")
+```
+
+## Checking Low Fat Confidence Curve
+```{r}
+curve(conf.curve.lowfat(mu),from=-20, to =0 ,xname = "mu")
+for (conf.int in seq(from=0 , to=1, by=.1)) {
+  lowfat.test.conf <-t.test(weight_change_data$weightchange[weight_change_data$diet=="Low Fat"], conf.level = conf.int)
+  abline(v=lowfat.test.conf$conf.int, h=conf.int)
+}
+
+abline(v=lowfat.test.conf$conf.int, h=.8)
+```
+
+## Confidence Density Low Fat
+```{r}
+lowfat.conf.dens <- function(mu)1/(sd_lowfat/sqrt(n_lowfat))*dt((mean_lowfat-mu)/(lowfat.bottom), df=n_lowfat-1)
+
+curve(lowfat.conf.dens(mu), from=-20, to=0, xname = "mu")
+
+```
+
+## Checking Confidence Density Low Fat
+```{r}
+curve(1-pt(((mean_lowfat-mu)/lowfat.bottom),df=n_lowfat-1),from = -20, to=0,xname = "mu")
+for (upper in seq(from=-20, to=0, by=.5)) {
+  area <- integrate(function(mu)lowfat.conf.dens(mu), lower=-Inf, upper=upper)$value
+  abline(v=upper, col="red")
+  abline(h=area, col="blue")
+
+}
+
+```
+
+
+## Confidence Distribution Two Sample T-test
+```{r}
+curve(1-pt((((mean_lowcarb-mean_lowfat)-delta)/sqrt((sd_lowcarb^2/n_lowcarb)+(sd_lowfat^2/n_lowfat))),df=603.97),from = -10, to=10, xname = "delta")
+
+
+```
+
+## Validate Confidence Qualities
+```{r}
+two.test <-t.test(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"], weight_change_data$weightchange[weight_change_data$diet=="Low Fat"], alternative = "greater", mu= -2)
+
+two.test$p.value
+```
+
+```{r}
+curve(1-pt((((mean_lowcarb-mean_lowfat)-delta)/sqrt((sd_lowcarb^2/n_lowcarb)+(sd_lowfat^2/n_lowfat))),df=603.97),from = -10, to=10,xname = "delta", ylab = "p.values")
+for (delta in seq(from=-10, to=10, by=1)) {
+  two.test <- t.test(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"], weight_change_data$weightchange[weight_change_data$diet=="Low Fat"], alternative = "greater", mu= delta)$p.value
+  abline(h=two.test, col="red")
+  abline(v=delta, col="blue")
+}
+
+```
+
+## Confidence Curve for Two Sample T Test 
+```{r}
+conf.curve.two <- function(delta)abs(2*(1-pt((((mean_lowcarb-mean_lowfat)-delta)/sqrt((sd_lowcarb^2/n_lowcarb)+(sd_lowfat^2/n_lowfat))),df=603.97))-1)
+
+curve(conf.curve.two(delta),from=-10, to =10 ,xname = "delta")
+
+two.conf <- t.test(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"],weight_change_data$weightchange[weight_change_data$diet=="Low Fat"], conf.level = .95)
+  abline(v=two.conf$conf.int, h=.95)
+```
+
+## Confidence Density For Two Sample T Test
+```{r}
+conf.dens.two <- function(delta)1/(sqrt((sd_lowcarb^2/n_lowcarb)+(sd_lowfat^2/n_lowfat)))*dt((((mean_lowcarb-mean_lowfat)-delta)/sqrt((sd_lowcarb^2/n_lowcarb)+(sd_lowfat^2/n_lowfat))),df=603.97)
+
+curve(conf.dens.two(delta), from=-10, to=10, xname = "delta")
+area <- integrate(function()lowfat.conf.dens(mu), lower=-Inf, upper=upper)$value
+  abline(v=upper, col="red")
+  abline(h=area, col="blue")
+
+```
+
+
+
