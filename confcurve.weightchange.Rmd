@@ -1,0 +1,59 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+# Confidence Curve Weight Change 
+
+## Basic Stats For Low Carb
+```{r}
+n_lowcarb <- length(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"])
+
+mean_lowcarb <- mean(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"])
+
+sd_lowcarb <- sd(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"])
+
+lowcarb.bottom <- sd_lowcarb/sqrt(n_lowcarb)
+```
+
+## Low Carb Confidence Distribution
+```{r}
+curve(1-pt(((mean_lowcarb-mu)/lowcarb.bottom),df=n_lowcarb-1),from = -20, to=0,xname = "mu") 
+```
+
+## Low Carb Confidence Curve
+```{r}
+conf.curve.lowcarb <- function(mu)abs(2*(1-pt(((mean_lowcarb-mu)/lowcarb.bottom),df=n_lowcarb-1))-1)
+
+curve(conf.curve.lowcarb(mu),from=-20, to =0 ,xname = "mu")
+
+```
+
+## Basic Stats For Low Fat
+```{r}
+n_lowfat <- length(weight_change_data$weightchange[weight_change_data$diet=="Low Fat"])
+
+mean_lowfat<- mean(weight_change_data$weightchange[weight_change_data$diet=="Low Fat"])
+
+sd_lowfat <- sd(weight_change_data$weightchange[weight_change_data$diet=="Low Fat"])
+
+lowfat.bottom <- sd_lowfat/sqrt(305)
+```
+
+## Low Fat Confidence Distribution
+```{r}
+curve(1-pt(((mean_lowfat-mu)/lowfat),df=304),from = -20, to=0,xname = "mu")
+```
+
+## Low Carb Confidence Curve
+```{r}
+conf.curve.lowfat <- function(mu)abs(2*(1-pt(((mean_lowfat-mu)/lowfat.bottom),df=n_lowfat-1))-1)
+
+curve(conf.curve.lowfat(mu),from=-20, to =0 ,xname = "mu")
+```
+
+```{r}
+1-pt(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"],304 )
+
+length(weight_change_data$weightchange[weight_change_data$diet=="Low Carb"])
+```
+
