@@ -1,0 +1,300 @@
+---
+title: "Weight Change Conf Dist and Curves"
+output: html_notebook
+---
+
+```{r}
+weightchange <- read.csv("weight_change_data.csv")
+```
+
+
+# Low Carb
+
+## Conf Dist
+
+```{r}
+
+
+
+xbar.lowcarb <- mean(weightchange$weightchange[weightchange$diet=="Low Carb"])
+s.lowcarb <- sd(weightchange$weightchange[weightchange$diet=="Low Carb"])
+n.lowcarb <- length(weightchange$weightchange[weightchange$diet=="Low Carb"])
+xbar.lowcarb
+s.lowcarb
+n.lowcarb
+```
+
+
+```{r}
+ 
+lowcarb.dist <- curve(1-pt((xbar.lowcarb - mu)/(s.lowcarb/sqrt(n.lowcarb)), df = (n.lowcarb-1)), from = -20, to = 0, xname = 'mu')
+
+```
+
+## Checking Conf Dist
+
+```{r}
+
+?t.test
+t.test(weightchange$weightchange[weightchange$diet=="Low Carb"], alternative = "greater", mu=xbar.lowcarb)
+```
+
+
+```{r}
+curve(1-pt((xbar.lowcarb - mu)/(s.lowcarb/sqrt(n.lowcarb)), df = (n.lowcarb-1)), from = -20, to = 0, xname = 'mu')
+  low.carb.t.test <- t.test(weightchange$weightchange[weightchange$diet=="Low Carb"], alternative = "greater", mu=-12.5)
+  
+
+abline(h=low.carb.t.test$p.value, v=-12.5)
+
+```
+
+
+```{r}
+curve(1-pt((xbar.lowcarb - mu)/(s.lowcarb/sqrt(n.lowcarb)), df = (n.lowcarb-1)), from = -20, to = 0, xname = 'mu')
+for (mu in seq(from=-20, to= 0, by = 1)) {
+  low.carb.t.test <- t.test(weightchange$weightchange[weightchange$diet=="Low Carb"], alternative = "greater", mu=mu)
+  
+
+abline(h=low.carb.t.test$p.value, v=mu)
+}
+```
+
+
+## Conf Curve
+
+```{r}
+lowcarb.func <- function(mu) abs(2*(1-pt((xbar.lowcarb - mu)/(s.lowcarb/sqrt(n.lowcarb)), df = (n.lowcarb-1)))-1)
+curve(lowcarb.func, from = -20, to = 0, xname = 'mu')
+
+```
+
+### Checking Conf Curve
+
+```{r}
+?t.test
+
+low.carb.t.test <- t.test(weightchange$weightchange[weightchange$diet=="Low Carb"], conf.level = .80)
+```
+
+```{r}
+curve(lowcarb.func, from = -20, to = 0, xname = 'mu')
+for (conf.int in seq(from=0, to= 1, by = .2)) {
+  low.carb.t.test <- t.test(weightchange$weightchange[weightchange$diet=="Low Carb"], conf.level = conf.int)
+  lowcarb.func <- function(mu) abs(2*(1-pt((xbar.lowcarb - mu)/(s.lowcarb/sqrt(n.lowcarb)), df = (n.lowcarb-1)))-1)
+
+abline(h=conf.int, v=low.carb.t.test$conf.int)
+}
+
+```
+## Conf Density
+
+```{r}
+lowcarb.dens.func <- function(mu) (1/(s.lowcarb/sqrt(n.lowcarb)))*(dt((xbar.lowcarb-mu)/((s.lowcarb/sqrt(n.lowcarb))), df=(n.lowcarb-1)))
+
+curve(lowcarb.dens.func(mu), from = -20, to = 0, xname = "mu")
+```
+
+### Checking Conf Density
+
+```{r}
+?integrate
+integrate(lowcarb.dens.func, lower = -Inf, upper = xbar.lowcarb)
+```
+
+```{r}
+
+
+
+
+curve(1-pt((xbar.lowcarb - mu)/(s.lowcarb/sqrt(n.lowcarb)), df = (n.lowcarb-1)), from = -20, to = 0, xname = 'mu')
+for (mu in seq(from=-20, to= 0, by = .5)) {
+  lowcarb.dens <- integrate(lowcarb.dens.func, lower = -Inf, upper = mu)$value
+  
+
+abline(h=lowcarb.dens, v=mu)
+}
+
+  
+
+
+```
+
+
+
+# Low Fat
+
+## Conf Dist
+
+```{r}
+
+xbar.lowfat <- mean(weightchange$weightchange[weightchange$diet=="Low Fat"])
+s.lowfat <- sd(weightchange$weightchange[weightchange$diet=="Low Fat"])
+n.lowfat <- length(weightchange$weightchange[weightchange$diet=="Low Fat"])
+xbar.lowfat
+s.lowfat
+n.lowfat
+```
+
+
+```{r}
+
+curve(1-pt((xbar.lowfat - mu)/(s.lowfat/sqrt(n.lowfat)), df = (n.lowfat-1)), from = -20, to = 0, xname = 'mu')
+
+```
+
+### Check
+
+```{r}
+curve(1-pt((xbar.lowfat - mu)/(s.lowfat/sqrt(n.lowfat)), df = (n.lowfat-1)), from = -20, to = 0, xname = 'mu')
+for (mu in seq(from=-20, to= 0, by = 1)) {
+  low.fat.t.test <- t.test(weightchange$weightchange[weightchange$diet=="Low Fat"], alternative = "greater", mu=mu)
+  
+
+abline(h=low.fat.t.test$p.value, v=mu)
+}
+```
+
+
+## Conf Curve
+
+```{r}
+lowfat.func <- function(mu) abs(2*(1-pt((xbar.lowfat - mu)/(s.lowfat/sqrt(n.lowfat)), df = (n.lowfat-1)))-1)
+curve(lowfat.func, from = -20, to = 0, xname = 'mu')
+```
+
+```{r}
+
+low.fat.t.test <- t.test(weightchange$weightchange[weightchange$diet=="Low Fat"], conf.level = .80)
+```
+
+```{r}
+curve(lowfat.func, from = -20, to = 0, xname = 'mu')
+for (conf.int in seq(from=0, to= 1, by = .2)) {
+  low.fat.t.test <- t.test(weightchange$weightchange[weightchange$diet=="Low Fat"], conf.level = conf.int)
+  lowcarb.func <- function(mu) abs(2*(1-pt((xbar.lowcarb - mu)/(s.lowcarb/sqrt(n.lowcarb)), df = (n.lowcarb-1)))-1)
+
+abline(h=conf.int, v=low.fat.t.test$conf.int)
+}
+
+```
+
+## Conf Density
+
+```{r}
+lowfat.dens.func <- function(mu) (1/(s.lowfat/sqrt(n.lowfat)))*(dt((xbar.lowfat-mu)/((s.lowfat/sqrt(n.lowfat))), df=(n.lowfat-1)))
+
+curve(lowfat.dens.func(mu), from = -20, to = 0, xname = "mu")
+```
+
+### Checking Conf Density
+
+```{r}
+
+integrate(lowfat.dens.func, lower = -Inf, upper = xbar.lowfat)
+```
+
+```{r}
+
+
+
+
+curve(1-pt((xbar.lowfat - mu)/(s.lowfat/sqrt(n.lowfat)), df = (n.lowfat-1)), from = -20, to = 0, xname = 'mu')
+for (mu in seq(from=-20, to= 0, by = .5)) {
+  lowfat.dens <- integrate(lowfat.dens.func, lower = -Inf, upper = mu)$value
+  
+
+abline(h=lowfat.dens, v=mu)
+}
+
+  
+
+
+```
+
+
+# Welch's t-test
+
+```{r}
+weightchange.welch <- t.test(weightchange$weightchange ~ weightchange$diet)
+```
+
+
+## Conf Dist
+
+
+```{r}
+wc.df <- (((((s.lowcarb^2)/n.lowcarb)+(s.lowfat^2)/n.lowfat))^2)/((((s.lowcarb^2)/(n.lowcarb-1))^2)+(((s.lowfat^2)/(n.lowfat-1))^2))
+wc.df # Weight Change Degrees of Freedom for Welch's t-test, should be 603.97 for this data
+```
+```{r}
+sample.diff <- xbar.lowcarb - xbar.lowfat
+```
+
+
+```{r}
+
+curve(1-pt((xbar.lowcarb - xbar.lowfat - delta)/(sqrt((((s.lowcarb)^2)/n.lowcarb)+((s.lowfat)^2)/n.lowfat)), df = 603.97), from = -10, to = 5, xname = 'delta')
+```
+
+### Checking
+
+```{r}
+
+curve(1-pt((xbar.lowcarb - xbar.lowfat - delta)/(sqrt((((s.lowcarb)^2)/n.lowcarb)+((s.lowfat)^2)/n.lowfat)), df = 603.97), from = -10, to = 5, xname = 'delta')
+abline(h=.5, v=sample.diff)
+```
+
+## Conf Curv
+
+```{r}
+two.samp.func <- function(delta) abs(2*(1-pt((xbar.lowcarb - xbar.lowfat - delta)/(sqrt((((s.lowcarb)^2)/n.lowcarb)+((s.lowfat)^2)/n.lowfat)), df = 603.97))-1)
+
+curve(two.samp.func, from = -10, to = 5, xname = 'delta')
+```
+
+### Checking
+
+```{r}
+curve(two.samp.func, from = -10, to = 5, xname = 'delta')
+abline(h=.95, v = weightchange.welch$conf.int)
+```
+
+## Conf Density
+
+```{r}
+welch.dens.func <- function(delta) (1/sqrt((s.lowcarb^2/(n.lowcarb))+(s.lowfat^2/(n.lowfat)))*(dt((xbar.lowcarb- xbar.lowfat- delta)/sqrt((s.lowcarb^2/(n.lowcarb))+(s.lowfat^2/(n.lowfat))), df=(n.lowcarb-1))))
+
+curve(lowcarb.dens.func(mu), from = -20, to = 0, xname = "mu")
+```
+
+### Checking 
+
+```{r}
+
+integrate(welch.dens.func, lower = -Inf, upper = sample.diff)
+```
+
+```{r}
+
+
+
+
+curve(1-pt((xbar.lowcarb - xbar.lowfat - delta)/(sqrt((((s.lowcarb)^2)/n.lowcarb)+((s.lowfat)^2)/n.lowfat)), df = 603.97), from = -10, to = 5, xname = 'delta')
+for (delta in seq(from=-20, to= 0, by = .5)) {
+  welch.dens <- integrate(welch.dens.func, lower = -Inf, upper = delta)$value
+  
+
+abline(h=welch.dens, v=delta)
+}
+
+  
+
+
+```
+
+
+
+
+
+
