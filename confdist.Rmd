@@ -1,0 +1,105 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# t.confdist
+
+```{r}
+t.confdist <- function(x, y = NULL, paired = FALSE, plot = TRUE) {
+  xbar <- mean(x)
+  sx <- sd(x)
+  nx <- length(x)
+  vx <- var(x)
+  
+  if(is.null(y)){
+  # Confidence Distribution 
+  
+  x1.dist.func <- function(mu) 1-pt((xbar - mu)/(sx/sqrt(nx)), df = (nx-1))
+  
+  # Confidence Density
+  
+  x1.dens.func <- function(mu) (1/(sx/sqrt(nx)))*(dt((xbar-mu)/((sx/sqrt(nx))), df=(nx-1)))
+
+  # Confidence Curve
+  
+  x1.conf.curv.func <- function(mu) abs(2*(1-pt((xbar - mu)/(sx/sqrt(nx)), df = (nx-1)))-1)
+  
+  # Confidence Quantile
+  
+  x1.quantile.func <- function(p) xbar + (sx/sqrt(nx))*qt(p, df = (nx-1))
+  
+  x.list <- list(pconf = x1.dist.func, dconf = x1.dens.func, cconf = x1.conf.curv.func, qconf = x1.quantile.func)
+  
+  
+  if(plot == TRUE){
+  
+    curve(x1.dist.func(mu), from = xbar - 3.291*(sx/sqrt(nx)), to = xbar + 3.291*(sx/sqrt(nx)), xname = "mu", main = "Confidence Distribution")
+    curve(x1.dens.func(mu), from = xbar - 3.291*(sx/sqrt(nx)), to = xbar + 3.291*(sx/sqrt(nx)), xname = "mu", main = "Confidence Density")
+    curve(x1.conf.curv.func, from = xbar - 3.291*(sx/sqrt(nx)), to = xbar + 3.291*(sx/sqrt(nx)), xname = "mu", main = "Confidence Curve")
+
+  }
+  
+  return(x.list)
+  
+  } else if (!is.null(y)){
+  ybar <- mean(y)
+  sy <- sd(y)
+  ny <- length(y)
+  vy <- var(y)
+  stderrx <- sqrt(vx/nx)
+	stderry <- sqrt(vy/ny)
+	stderr <- sqrt(stderrx^2 + stderry^2)
+	df.welch <- stderr^4/(stderrx^4/(nx-1) + stderry^4/(ny-1))
+	
+	# Confidence Distribution 
+	welch.dist.func <- function(delta) 1-pt((xbar - ybar - delta)/(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), df = df.welch)
+
+		# Confidence Density
+	welch.dens.func <- function(delta) (1/sqrt((sx^2/(nx))+(sy^2/(ny)))*(dt((xbar - ybar- delta)/sqrt((sx^2/(nx))+(sy^2/(ny))), df=df.welch)))
+
+	# Confidence Curve
+  welch.conf.curv.func <- function(delta) abs(2*(1-pt((xbar - ybar - delta)/(sqrt((((s.lowcarb)^2)/n.lowcarb)+((s.lowfat)^2)/n.lowfat)), df = df.welch))-1)
+  
+  # Confidence Quantile
+  welch.quantile.func <- function(delta) delta - (xbar - ybar) + sqrt((sx^2/(nx))+(sy^2/(ny)))*qt(welch.dist.func(delta), df = df.welch)
+  
+  welch.list <- list(pconf = welch.dist.func, dconf = welch.dens.func, cconf =  welch.conf.curv.func, qconf = welch.quantile.func)
+  
+	if(plot == TRUE){
+    
+	  curve(welch.dist.func, from = (xbar-ybar) - 3.291*(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), to = (xbar-ybar) + 3.291*(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), xname = "delta", main = "Confidence Distribution")
+    curve(welch.dens.func, from = (xbar-ybar) - 3.291*(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), to = (xbar-ybar) + 3.291*(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), xname = "delta", main = "Confidence Density")
+    curve(welch.conf.curv.func, from = (xbar-ybar) - 3.291*(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), to = (xbar-ybar) + 3.291*(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), xname = "delta", main = "Confidence Curve", ylab = "Level of Confidence")
+ 
+	}
+  
+  return(welch.list)
+  }
+  
+}
+```
+
+
+
+
+
+```{r}
+confdist <- t.confdist(weightchange$weightchange[weightchange$diet=="Low Carb"], plot = TRUE)
+```
+
+```{r}
+confdist$pconf(0)
+confdist$qconf(c(.025, .975))
+```
+
+
+```{r}
+t.confdist(weightchange$weightchange[weightchange$diet=="Low Fat"], plot = TRUE)
+```
+
+```{r}
+t.confdist(x = weightchange$weightchange[weightchange$diet=="Low Carb"], y = weightchange$weightchange[weightchange$diet=="Low Fat"], plot = TRUE)
+```
+
+
