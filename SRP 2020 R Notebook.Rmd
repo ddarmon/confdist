@@ -304,7 +304,7 @@ t.confdist <- function(x, y = NULL, paired = FALSE, plot = TRUE) {
 	welch.dens.func <- function(delta) (1/sqrt((sx^2/(nx))+(sy^2/(ny)))*(dt((xbar - ybar- delta)/sqrt((sx^2/(nx))+(sy^2/(ny))), df=df.welch)))
 
 	# Confidence Curve
-  welch.conf.curv.func <- function(delta) abs(2*(1-pt((xbar - ybar - delta)/(sqrt((((s.lowcarb)^2)/n.lowcarb)+((s.lowfat)^2)/n.lowfat)), df = df.welch))-1)
+  welch.conf.curv.func <- function(delta) abs(2*(1-pt((xbar - ybar - delta)/(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), df = df.welch))-1)
   
   # Confidence Quantile
   welch.quantile.func <- function(p) (xbar - ybar) + sqrt((sx^2/(nx))+(sy^2/(ny)))*qt(p, df = df.welch)
@@ -329,13 +329,13 @@ t.confdist <- function(x, y = NULL, paired = FALSE, plot = TRUE) {
 # t.confdist.summary
 
 ```{r}
-t.confdist.summary <- function(x,y,n, plot = TRUE){
+t.confdist.summary <- function(mean,sd,n, plot = TRUE){
  
-stopifnot(length(x)==length(y) && length(x)==length(n))
+stopifnot(length(mean)==length(sd) && length(mean)==length(n))
   
-if (length(x)==1){
-  xbar <- x[1]
-  sx <- y[1]
+if (length(mean)==1){
+  xbar <- mean[1]
+  sx <- sd[1]
   nx <- n[1]
   vx <- sx^2
   
@@ -368,19 +368,19 @@ if (length(x)==1){
   
   return(x.list)
   
-  } else if (length(x)==2){  
-    xbar <- x[1]
-    sx <- y[1]
+  } else if (length(mean)==2){  
+    xbar <- mean[1]
+    sx <- sd[1]
     nx <- n[1]
     vx <- sx^2
-    ybar <- x[2]
-    sy <- y[2]
+    ybar <- mean[2]
+    sy <- sd[2]
     ny <- n[2]
     vy <- sy^2
     stderrx <- sqrt(vx/nx)
     stderry <- sqrt(vy/ny)
     stderr <- sqrt(stderrx^2 + stderry^2)
-    df.welch <- stderr^4/stderrx^4/(nx-1) + stderry^4/(ny-1)
+    df.welch <- stderr^4/(stderrx^4/(nx-1) + stderry^4/(ny-1))
 
 	# Confidence Distribution 
 	welch.dist.func <- function(delta) 1-pt((xbar - ybar - delta)/(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), df = df.welch)
@@ -389,7 +389,7 @@ if (length(x)==1){
 	welch.dens.func <- function(delta) (1/sqrt((sx^2/(nx))+(sy^2/(ny)))*(dt((xbar - ybar- delta)/sqrt((sx^2/(nx))+(sy^2/(ny))), df=df.welch)))
 
 	# Confidence Curve
-  welch.conf.curv.func <- function(delta) abs(2*(1-pt((xbar - ybar - delta)/(sqrt((((s.lowcarb)^2)/n.lowcarb)+((s.lowfat)^2)/n.lowfat)), df = df.welch))-1)
+  welch.conf.curv.func <- function(delta) abs(2*(1-pt((xbar - ybar - delta)/(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), df = df.welch))-1)
   
   # Confidence Quantile
   welch.quantile.func <- function(p) (xbar - ybar) + sqrt((sx^2/(nx))+(sy^2/(ny)))*qt(p, df = df.welch)
@@ -398,7 +398,7 @@ if (length(x)==1){
   
 	if(plot == TRUE){
   
-	  t.crit <- qt(0.9995, df = nx-1)  
+	  t.crit <- qt(0.9995, df = df.welch)  
   
 	  curve(welch.dist.func, from = (xbar-ybar) - t.crit*(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), to = (xbar-ybar) + t.crit*(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), xname = "delta", main = "Confidence Distribution")
     curve(welch.dens.func, from = (xbar-ybar) - t.crit*(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), to = (xbar-ybar) + t.crit*(sqrt((((sx)^2)/nx)+((sy)^2)/ny)), xname = "delta", main = "Confidence Density")
@@ -418,8 +418,8 @@ return(welch.list)
 ```{r}
 xbar.lowcarb.bmi <- -2.07
 xbar.lowfat.bmi <- -1.75
-s.lowfat.bmi <- (-1.97-(xbar.lowfat.bmi))*sqrt(n.lowfat)/(qt(0.975,df=n.lowfat-1))
-s.lowcarb.bmi <- (-2.3-(xbar.lowcarb.bmi))*sqrt(n.lowcarb)/(qt(0.975, df = n.lowcarb-1))
+s.lowfat.bmi <- ((xbar.lowfat.bmi)+1.97)*sqrt(n.lowfat)/(qt(0.975,df=n.lowfat-1))
+s.lowcarb.bmi <- ((xbar.lowcarb.bmi)+2.3)*sqrt(n.lowcarb)/(qt(0.975, df = n.lowcarb-1))
 
 s.lowcarb.bmi
 s.lowfat.bmi
@@ -428,7 +428,7 @@ s.lowfat.bmi
 # Testing with lowfat data
 
 ```{r}
-conf.lowfat.bmi <- t.confdist.summary(x=xbar.lowfat.bmi, y=s.lowfat.bmi, n=n.lowfat)
+conf.lowfat.bmi <- t.confdist.summary(mean=xbar.lowfat.bmi, sd=s.lowfat.bmi, n=n.lowfat)
 abline(h=0.95)
 abline(v=-1.97)
 abline(v=-1.52)
@@ -437,7 +437,7 @@ abline(v=-1.52)
 # Testing with low carb data
 
 ```{r}
-conf.lowcarb.bmi <- t.confdist.summary(x=xbar.lowcarb.bmi, y=s.lowcarb.bmi, n=n.lowcarb)
+conf.lowcarb.bmi <- t.confdist.summary(mean=xbar.lowcarb.bmi, sd=s.lowcarb.bmi, n=n.lowcarb)
 abline(h=0.95)
 abline(v=-2.3)
 abline(v=-1.85)
@@ -446,6 +446,6 @@ abline(v=-1.85)
 # Testing both 
 
 ```{r}
-conf.lowcarb.lowfat.bmi <- t.confdist.summary(x=c(xbar.lowcarb.bmi, xbar.lowfat.bmi), y=c(s.lowcarb.bmi,s.lowfat.bmi), n=c(n.lowcarb,n.lowfat))
+conf.lowcarb.lowfat.bmi <- t.confdist.summary(mean=c(xbar.lowcarb.bmi, xbar.lowfat.bmi), sd=c(s.lowcarb.bmi,s.lowfat.bmi), n=c(n.lowcarb,n.lowfat))
 ```
 
