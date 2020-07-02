@@ -1,4 +1,4 @@
-Package: confdist2
+Package: confdist
 Type: Package
 Title: confdist, a package for creating confidence functions
 Version: 0.1.0

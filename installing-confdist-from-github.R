@@ -4,8 +4,8 @@
 
 devtools::install_github("ddarmon/confdist")
 
-library(confdist2)
+library(confdist)
 
 ## Updating the package
 
-devtools::update_packages('confdist2')
+devtools::update_packages('confdist')
