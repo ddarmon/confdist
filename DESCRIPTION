@@ -1,0 +1,11 @@
+Package: confdist2
+Type: Package
+Title: confdist, a package for creating confidence functions
+Version: 0.1.0
+Author: David, Odalys, Sam, and Matt
+Maintainer: David Darmon <ddarmon@monmouth.edu>
+Description: This package computes confidence functions for all of the basic statistical inference tasks needed for an introductory course in statistics.
+    This would be another paragraph.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
