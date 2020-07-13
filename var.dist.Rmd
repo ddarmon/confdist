@@ -1,0 +1,64 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Variance confidence function
+```{r}
+var.conf<- function(x,plot=TRUE){
+n<- length(x)
+S<-sd(x)
+crit.L<-((n-1)*sd(x)^2)/qchisq(0.975,df=n-1)
+crit.R<-((n-1)*sd(x)^2)/qchisq(0.025,df=n-1)
+if(plot==TRUE){
+pconf.var<- function(var)1-pchisq(((n-1)*S^2)/var,df=n-1)
+curve(pconf.var,xname="var",main="Confidence Distribution", from=crit.L,to=crit.R)
+
+cconf.var<- function(var)abs(2*(1-pchisq(((n-1)*S^2)/var,df=n-1))-1)
+curve(cconf.var,xname="var",main="Confidence Curve",ylab="Confidence level", from=crit.L,to=crit.R)
+
+dconf.var<-function(var)dchisq(((n-1)*S^2)/var,df=n-1)*((n-1)*S^2)/var^2
+curve(dconf.var,xname="var",main="Confidence Density", from=crit.L,to=crit.R)
+
+qconf.var<- function(p)((n-1)*S^2)/qchisq(1-p,df=n-1)
+
+conf.fun<- list(pconf=pconf.var,dconf=dconf.var,cconf=cconf.var,qconf=qconf.var)
+return(conf.fun)
+}else{
+  pconf.var<- function(var)1-pchisq(((n-1)*S^2)/var,df=n-1)
+cconf.var<- function(var)abs(2*(1-pchisq(((n-1)*S^2)/var,df=n-1))-1)
+dconf.var<-function(var)dchisq(((n-1)*S^2)/var,df=n-1)*((n-1)*S^2)/var^2
+qconf.var<- function(p)((n-1)*S^2)/qchisq(1-p,df=n-1)
+
+conf.fun<- list(pconf=pconf.var,dconf=dconf.var,cconf=cconf.var,qconf=qconf.var)
+  return(conf.fun)}
+}
+```
+
+```{r}
+random<-var.conf(x=rnorm(100),plot=FALSE)
+
+random$qconf(c(0.05,0.95))
+random$cconf(c(1.1523,0.7205))
+
+```
+## Low Carb Variance Confidence Interval
+```{r}
+carb<- var.conf(x=weight_change_data$weightchange[weight_change_data$diet=="Low Carb"])
+
+carb$qconf(c(0.05,0.95))
+carb$pconf(c(170.6712,130.5937))
+```
+
+## Low Fat Variance Confidence Interval
+```{r}
+var.conf(x=weight_change_data$weightchange[weight_change_data$diet=="Low Fat"])
+```
+
+```{r}
+S<-sqrt(2)
+n<-5
+cconf.var<- function(var)abs(2*(1-pchisq(((n-1)*S^2)/var,df=n-1))-1)
+curve(cconf.var,xname="var",main="Confidence Curve",ylab="Confidence level", from=1,to=5)
+```
+
