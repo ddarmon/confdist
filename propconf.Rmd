@@ -1,0 +1,99 @@
+---
+title: "propconf"
+output: html_notebook
+---
+
+```{r}
+?prop.test
+```
+
+```{r}
+prop.conf <- function (x, n, plot = TRUE) {
+  
+  p.hat <- x/n
+    
+    prop.dist.func <- function(p) 1-pnorm((p.hat - p)/sqrt(p*(1-p)/n))
+    
+      prop.deriv <- function(p) -1/2*(p - p.hat)*((p - 1)/n + p/n)/(-(p - 1)*p/n)^(3/2) - 1/sqrt(-(p - 1)*p/n)
+
+    prop.dens.func <- function(p) -dnorm((p.hat - p)/sqrt(p*(1-p)/n))*prop.deriv(p)
+    
+    prop.curv.func <- function(p) abs(2*(1-pnorm((p.hat - p)/sqrt(p*(1-p)/n)))-1)
+
+      quant.top <- function(p) p.hat + (qnorm(p)/2*n) + (qnorm(p)*sqrt((p.hat*(1-p.hat))/n)+(qnorm(p)/(4*n^2)))
+    
+      quant.bot <- function(p) 1 + qnorm(p)/n
+    
+    prop.quant.func <- function(p) quant.top(p)/quant.bot(p)
+
+
+    
+    x.list <- list(pconf = var.dist.func, dconf = var.dens.func, cconf = var.conf.curv.func, qconf = var.quantile.func)
+    
+    if (plot){
+      crit.left <- ((n-1)*s.sq)/qchisq(0.9995, df = n-1)
+      crit.right <- ((n-1)*s.sq)/qchisq(0.0005, df = n-1)
+      curve(prop.dist.func, from = crit.left, to = crit.right)
+      curve(prop.dens.func, from = crit.left, to = crit.right)
+      curve(prop.curv.func, from = crit.left, to = crit.right)
+      }
+
+}
+```
+
+
+# Distribution
+
+```{r}
+x <- 10
+n <- 20
+p.hat <- x/n
+prop.dist.func <- function(p) 1-pnorm((p.hat - p)/sqrt(p*(1-p)/n))
+curve(prop.dist.func, from = 0, to = 1)
+```
+
+# Density
+
+```{r}
+prop.deriv <- function(p) -1/2*(p - p.hat)*((p - 1)/n + p/n)/(-(p - 1)*p/n)^(3/2) - 1/sqrt(-(p - 1)*p/n)
+
+prop.dens.func <- function(p) -dnorm((p.hat - p)/sqrt(p*(1-p)/n))*prop.deriv(p)
+
+curve(prop.dens.func, from = 0, to = 1)
+```
+
+```{r}
+integrate(prop.dens.func, lower = 0, upper = .7)
+
+1-pnorm((p.hat - .7)/sqrt(.7*(1-.7)/n))
+
+```
+
+
+# Curve
+
+```{r}
+
+prop.curv.func <- function(p) abs(2*(1-pnorm((p.hat - p)/sqrt(p*(1-p)/n)))-1)
+
+
+curve(prop.curv.func, from = 0, to = 1)
+```
+
+# Quantile
+
+```{r}
+quant.top <- function(p) p.hat + (qnorm(p)/2*n) + (qnorm(p)*sqrt((p.hat*(1-p.hat))/n)+(qnorm(p)/(4*n^2)))
+    
+quant.bot <- function(p) 1 + qnorm(p)/n
+    
+prop.quant.func <- function(p) quant.top(p)/quant.bot(p)
+
+curve(prop.quant.func, from = 0, to = 1)
+```
+
+```{r}
+prop.dist.func(.6)
+prop.quant.func(.8193448)
+```
+
