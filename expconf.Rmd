@@ -1,0 +1,122 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+exp.conf <- function (x, method, plot = TRUE) {
+  
+  xbar <- mean(x)
+  theta.hat <- 1/xbar
+  n <- length(x)
+  
+  if (method == "Pivot"){
+    
+    exp.dist.func <- function(lambda) pchisq((2*lambda*xbar*n), df = (2*n))
+    
+    exp.dens.func <- function(lambda) (2*xbar*n)*dchisq((2*lambda*xbar*n), df = (2*n))
+    
+    exp.conf.curv.func <- function(lambda) abs(2*(pchisq((2*lambda*xbar*n), df = (2*n)))-1)
+
+    exp.quantile.func <- function(p) qchisq(p, df = (2*n))/(2*xbar*n)
+
+
+    
+    x.list <- list(pconf = exp.dist.func, dconf = exp.dens.func, cconf = exp.conf.curv.func, qconf = exp.quantile.func)
+    
+    if (plot){
+      crit.left <- qchisq(0.0005, df = 2*n)/(2*xbar*n)
+      crit.right <- qchisq(0.9995, df = 2*n)/(2*xbar*n)
+      exp.dist <- curve(exp.dist.func, from = crit.left, to = crit.right)
+      exp.dens <- curve(exp.dens.func, from = crit.left, to = crit.right)
+      exp.cc <- curve(exp.conf.curv.func, from = crit.left, to = crit.right)
+      }
+  }
+  
+  if (method == "Wilks"){
+    
+    log.like.exp <- function(theta) (n*log(theta)-theta*n*xbar)
+    
+    exp.pconf <- function(theta) {
+      pnorm(q=sign(theta -  theta.hat)*sqrt(2*(log.like.exp(theta.hat)-log.like.exp(theta))))
+    }
+    exp.dconf <- function(theta) {
+sign(theta - theta.hat)*(-n/theta+n*xbar)*(1/sqrt(2*(log.like.exp(theta.hat)-log.like.exp(theta))))*dnorm(sign(theta - theta.hat)*sqrt(2*(log.like.exp(theta.hat)-log.like.exp(theta))))
+}
+ 
+    exp.cconf <- function(theta) {abs(2*(pnorm(q=sign(theta - theta.hat)*sqrt(2*(log.like.exp(theta.hat)-log.like.exp(theta)))))-1)
+}
+
+    
+     x.list <- list(pconf = exp.pconf, dconf = exp.dconf, cconf = exp.cconf)
+
+     
+
+    if (plot){
+      crit.left <- qchisq(0.0005, df = 2*n)/(2*xbar*n)
+      crit.right <- qchisq(0.9995, df = 2*n)/(2*xbar*n)
+      if (crit.left < 0 ){
+        exp.dist <- curve(exp.pconf, from = 0, to = crit.right)
+        exp.dens <- curve(exp.dconf, from = 0, to = crit.right)
+        exp.cc <- curve(exp.cconf, from = 0, to = crit.right)
+      }else{
+      exp.dist <- curve(exp.pconf, from = crit.left, to = crit.right)
+      exp.dens <- curve(exp.dconf, from = crit.left, to = crit.right)
+      exp.cc <- curve(exp.cconf, from = crit.left, to = crit.right)
+      }
+      }
+  }
+}
+```
+
+
+
+```{r}
+r.exp.samp.1 <- rexp(n=10)
+r.exp.samp.2 <- rexp(n=100)
+r.exp.samp.3 <- rexp(n=1000)
+
+```
+
+```{r}
+exp.conf(x = r.exp.samp.1, method = "Pivot")
+```
+
+
+```{r}
+exp.conf(x = r.exp.samp.1, method = "Wilks")
+```
+
+```{r}
+exp.conf(x = r.exp.samp.2, method = "Pivot")
+```
+
+```{r}
+exp.conf(x = r.exp.samp.2, method = "Wilks")
+```
+
+
+```{r}
+exp.conf(x = r.exp.samp.3, method = "Pivot")
+```
+
+
+
+```{r}
+exp.conf(x = r.exp.samp.3, method = "Wilks")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
