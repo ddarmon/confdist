@@ -1,0 +1,107 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+var.conf <- function (x, plot = TRUE) {
+  
+  n <- length(x)
+  s.sq <- sd(x)^2
+  
+  
+    
+    var.dist.func <- function(var) 1-pchisq(((n-1)*s.sq)/var, df = (n-1))
+    
+    var.dens.func <- function(var) (((n-1)*s.sq)/(var^2))*dchisq(((n-1)*s.sq)/var, df = (n-1))
+    
+    var.conf.curv.func <- function(var) abs(2*(1-pchisq(((n-1)*s.sq)/var, df = (n-1)))-1)
+
+    var.quantile.func <- function(p) ((n-1)*s.sq)/qchisq(1-p, df = n-1)
+
+
+    
+    x.list <- list(pconf = var.dist.func, dconf = var.dens.func, cconf = var.conf.curv.func, qconf = var.quantile.func)
+    
+    if (plot){
+      crit.left <- ((n-1)*s.sq)/qchisq(0.9995, df = n-1)
+      crit.right <- ((n-1)*s.sq)/qchisq(0.0005, df = n-1)
+      exp.dist <- curve(var.dist.func, from = crit.left, to = crit.right)
+      exp.dens <- curve(var.dens.func, from = crit.left, to = crit.right)
+      exp.cc <- curve(var.conf.curv.func, from = crit.left, to = crit.right)
+      }
+
+}
+```
+
+
+```{r}
+gauss.rand.samp.1 <- rnorm(n=100)
+```
+
+```{r}
+var.conf(gauss.rand.samp.1)
+```
+
+```{r}
+gauss.rand.samp.2 <- rnorm(n=1000, mean = 10, sd = 3)
+
+```
+
+```{r}
+var.conf(gauss.rand.samp.2)
+```
+
+```{r}
+sd(weightchange$weightchange[weightchange$diet=="Low Carb"])^2
+var.conf(weightchange$weightchange[weightchange$diet=="Low Carb"])
+```
+
+
+```{r}
+sd(weightchange$weightchange[weightchange$diet=="Low Fat"])^2
+var.conf(weightchange$weightchange[weightchange$diet=="Low Fat"])
+```
+
+
+
+
+
+```{r}
+n <- 100
+s.sq = 1
+
+integrate(var.dens.func, lower = -Inf, upper = 1.000000001)
+
+    var.dist.func <- function(var) 1-pchisq(((n-1)*s.sq)/var, df = (n-1))
+    
+    var.dens.func <- function(var) (((n-1)*s.sq)/(var^2))*dchisq(((n-1)*s.sq)/var, df = (n-1))
+    
+    area.var.dens <- function(u) integrate(var.dens.func, lower = -Inf, upper = u)
+    
+var.dist.func(1)
+area.var.dens(1.0000000001)
+```
+
+
+```{r}
+var.quantile.func <- function(p) ((n-1)*s.sq)/qchisq(1-p, df = n-1)
+
+
+var.quantile.func(.95)
+var.dist.func(1.284941)
+```
+
+```{r}
+x <- c(1,2,3,4,5)
+s.sq <- 2
+n <-5
+
+
+var.conf.curv.func <- function(var) abs(2*(1-pchisq(((n-1)*s.sq)/var, df = (n-1)))-1)
+
+curve(var.conf.curv.func, from = 0, to = 5)
+```
+
+
+
