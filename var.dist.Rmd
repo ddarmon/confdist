@@ -5,6 +5,19 @@ output: html_notebook
 
 # Variance confidence function
 ```{r}
+#` Confidence Functions for Variance 
+#`
+#` \code{var.conf} returns plots and functions for the PDF, CDF, and the confidence curve, and only the quantile function 
+#`
+#` @param x is a vector of the data values
+#` @param plot=TRUE turns on the plots when plot=FALSE will only provide the functions
+#`
+#` @return If all inputs are integer the output will provide list of functions and plots of the confidence distribution, the confidence curve, and the confidence density.
+#`
+#` @example
+#`var.fun<-var.conf(x=c(1,2,3,4,5),plot=FALSE)
+#`var.fun$(pconf(0.5))
+
 var.conf<- function(x,plot=TRUE){
 n<- length(x)
 S<-sd(x)
@@ -61,4 +74,5 @@ n<-5
 cconf.var<- function(var)abs(2*(1-pchisq(((n-1)*S^2)/var,df=n-1))-1)
 curve(cconf.var,xname="var",main="Confidence Curve",ylab="Confidence level", from=1,to=5)
 ```
+
 
