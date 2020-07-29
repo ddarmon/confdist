@@ -1,0 +1,56 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+# Wilcox Signed Rank Test
+
+```{r}
+x <- c(207, 397, -63, -213, 96, 203, 442, 247, 70, 64)
+minx <- min(x)
+maxx <- max(x)
+
+wilcox.test(x, mu = 0)$p.value
+
+wil.conf.dist <- function(mu) wilcox.test(x, mu = mu, alternative = "greater")$p.value
+
+wil.conf.dist <- Vectorize(wil.conf.dist)
+
+curve(wil.conf.dist(mu), xname = "mu", n = 2000, from = min(x), to = max(x))
+```
+
+## Confidence Curve
+
+```{r}
+
+wil.conf.curv <- function(mu) 1 - wilcox.test(x, mu = mu)$p.value
+
+wil.conf.curv <- Vectorize(wil.conf.curv)
+par(mfrow = c(1,2))
+curve(wil.conf.dist(mu), xname = "mu", n = 2000, from = min(x), to = max(x))
+curve(wil.conf.curv(mu), xname = "mu", from = min(x), to = max(x), n = 2000)
+
+```
+
+## Quantile Function
+
+```{r}
+# x <- rnorm(100)
+
+wilcox.test(x, conf.int = TRUE)$conf.int
+# wilcox.test(x, conf.int = TRUE, alternative = "less")$conf.int[2]
+
+# wil.conf.quant <- function(q) uniroot(function(x) wil.conf.dist(x)-q, lower = minx, upper = maxx)$root
+
+wil.conf.quant.2 <- function(q) wilcox.test(x, conf.int = TRUE, alternative = "less", conf.level = q)$conf.int[2]
+
+wil.conf.quant.2(.025)
+wil.conf.quant.2(.975)
+```
+
+
+
+
+
+
