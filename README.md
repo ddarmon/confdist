@@ -2,7 +2,7 @@ confdist is an R package for performing inference using [confidence functions](h
 
 # Catalog of Functions
 
-* `t.conf()` for confidence functions for a single mean and the difference of two means.
+* `t.conf()` for a single mean and the difference of two means (paired and unpaired).
 * `prop.conf()` for a single binomial proportion.
 * `var.conf()` for a single variance.
 * `exp.conf()` for an exponential rate
