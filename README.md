@@ -5,11 +5,11 @@ confdist is an R package for performing inference using [confidence functions](h
 * `t.conf()` for a single mean and the difference of two means (paired and unpaired).
 * `prop.conf()` for a single binomial proportion.
 * `var.conf()` for a single variance.
-* `exp.conf()` for an exponential rate
+* `exp.conf()` for an exponential rate.
 
 # Installation
 
-To install confdist, install `devtools` (if you have not already) and run
+To install confdist, run
 
 ```
 install.packages('devtools') # Only if you haven't installed devtools already
@@ -24,10 +24,9 @@ The functions in confdist are modeled after base R functions like `t.test()`, `p
 ```{r}
 library(confdist)
 
-# Construct confidence functions for
-# the population mean.
+# Construct confidence functions for a population mean.
 
-conf <- t.conf(x = c(1, 2, 3, 4, 5))
+conf <- t.conf(x = c(-2, -1, 0, 1, 2))
 
 conf$pconf(0) # Right-sided P-value for mu = 0
 
