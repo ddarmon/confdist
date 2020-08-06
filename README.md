@@ -1,5 +1,3 @@
-<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
-
 confdist is an R package for performing inference using [confidence functions](https://www.stat.rutgers.edu/home/mxie/RCPapers/insr.12000.pdf).
 
 # Catalog of Functions
@@ -15,6 +13,7 @@ To install confdist, install `devtools` (if you have not already) and run
 
 ```
 install.packages('devtools') # Only if you haven't installed devtools already
+
 devtools::install_github(ddarmon/confdist)
 ```
 
