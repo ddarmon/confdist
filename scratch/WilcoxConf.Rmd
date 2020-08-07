@@ -6,6 +6,8 @@ output: html_notebook
 
 # Wilcox Signed Rank Test
 
+## Confidence Distribution
+
 ```{r}
 x <- c(207, 397, -63, -213, 96, 203, 442, 247, 70, 64)
 minx <- min(x)
@@ -41,12 +43,127 @@ curve(wil.conf.curv(mu), xname = "mu", from = min(x), to = max(x), n = 2000)
 wilcox.test(x, conf.int = TRUE)$conf.int
 # wilcox.test(x, conf.int = TRUE, alternative = "less")$conf.int[2]
 
-# wil.conf.quant <- function(q) uniroot(function(x) wil.conf.dist(x)-q, lower = minx, upper = maxx)$root
+wil.conf.quant <- function(q) uniroot(function(x) wil.conf.dist(x)-q, lower = minx, upper = maxx)$root
 
 wil.conf.quant.2 <- function(q) wilcox.test(x, conf.int = TRUE, alternative = "less", conf.level = q)$conf.int[2]
 
+wil.conf.quant(.025)
+wil.conf.quant(.975)
 wil.conf.quant.2(.025)
 wil.conf.quant.2(.975)
+```
+
+```{r}
+
+n <- 100
+
+
+full.exp <- function(conf.level) {
+  x <- rnorm(n)
+  range.x <- range(x)
+  wil.conf.dist <- function(mu) wilcox.test(x, mu = mu, alternative = "greater")$p.value
+
+wil.conf.dist <- Vectorize(wil.conf.dist)
+  
+  wil.conf.quant <- function(q) uniroot(function(x) wil.conf.dist(x)-q, lower = range.x[1], upper = range.x[2])$root
+  
+  wil.conf.quant.2 <- function(q) wilcox.test(x, conf.int = TRUE, alternative = "less", conf.level = q)$conf.int[2]
+  
+  alpha <- 1 - conf.level
+  in.ci.1 <- (0 <= wil.conf.quant(1-alpha/2) && 0 >= wil.conf.quant(alpha/2))
+  
+  in.ci.2 <- (0 <= wil.conf.quant.2(1-alpha/2) && 0 >= wil.conf.quant.2(alpha/2))
+  
+  return(c(in.ci.1, in.ci.2))
+}
+
+full.exp(.95)
+
+counts <- replicate(1000, full.exp(.95))
+
+rowMeans(counts)
+```
+
+
+
+
+```{r}
+
+for (i in 1:n) {
+  if(mean(test.samples[,i]) <= wil.conf.quant(.975) && mean(test.samples[,i]) >= wil.conf.quant(.025)){
+    count.uni <- count.uni + 1
+  }
+}
+count.uni/n
+
+count.conf <- 0
+
+for (i in 1:n) {
+  if(mean(test.samples[,i]) <= wil.conf.quant.2(.975) && mean(test.samples[,i]) >= wil.conf.quant.2(.025)){
+    count.conf <- count.conf + 1
+  }
+}
+
+count.conf/n
+```
+
+
+# Wilcox Rank Sum 
+
+## Distribution Function
+
+```{r}
+
+blue <- lowcarbweights.new
+red <- lowfatweights.new
+
+blue <- c(1,2,3,4,5)
+red <- c(6,7,8,9,10)
+
+red <- red-4
+
+min.rank.sum <- min(blue) - max(red)
+  
+max.rank.sum <- max(blue) - min(red)
+
+
+wil.rank.sum.conf.dist <- function(mu) wilcox.test(x = blue, y = red, mu = mu, alternative = "greater")$p.value
+
+wil.rank.sum.conf.dist <- Vectorize(wil.rank.sum.conf.dist)
+
+curve(wil.rank.sum.conf.dist(mu), xname = "mu", n = 2000, from = min.rank.sum, to = max.rank.sum)
+
+wil.rank.sum.conf.dist(-20)
+wil.rank.sum.conf.dist(-30)
+```
+
+## Confidence Curve
+
+```{r}
+
+wil.rank.sum.conf.curv <- function(mu) 1 - wilcox.test(x = lowcarbweights.new, y = lowfatweights.new, mu = mu)$p.value
+
+wil.rank.sum.conf.curv <- Vectorize(wil.rank.sum.conf.curv)
+# par(mfrow = c(1,2))
+# curve(wil.rank.sum.conf.dist(mu), xname = "mu", from = -5, to = 5, n = 2000)
+curve(wil.rank.sum.conf.curv(mu), xname = "mu", from = min.rank.sum, to = max.rank.sum, n = 2000)
+
+```
+
+```{r}
+
+wil.rank.sum.conf.quant <- function(q) uniroot(function(x) wil.rank.sum.conf.dist(x)-q, lower = min.rank.sum, upper = max.rank.sum)$root
+
+wil.rank.sum.conf.quant.2 <- function(q) wilcox.test(x = blue, y = red, conf.int = TRUE, alternative = "less", conf.level = q)$conf.int[2]
+
+
+wilcox.test(x = blue, y = red, conf.int = TRUE, conf.level = .95)$conf.int
+
+
+wil.rank.sum.conf.quant(.025)
+wil.rank.sum.conf.quant(.975)
+wil.rank.sum.conf.quant.2(.025)
+wil.rank.sum.conf.quant.2(.975)
 ```
 
 
